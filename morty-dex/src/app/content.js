@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import Link from "next/link";
 import Container from "@mui/material/Container";
 import {
   Box,
@@ -120,7 +121,13 @@ export default function Content({ data, defaultEndpoint }) {
                 <Typography variant="h6" sx={{ textAlign: "center" }}>
                   {character.name}
                 </Typography>
-                <img src={character.image} alt={character.name} width="100%" />
+                <Link href={`/character/${character.id}`}>
+                  <img
+                    src={character.image}
+                    alt={character.name}
+                    width="100%"
+                  />
+                </Link>
               </Box>
             </Paper>
           </Grid>
