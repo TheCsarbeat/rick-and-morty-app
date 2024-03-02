@@ -83,7 +83,7 @@ export default function CardPanel({ character }) {
               </Typography>
               <Typography>
                 <Box component="span" fontWeight="bold">
-                  🌍Location:{" "}
+                  🌍Last Known Location:{" "}
                 </Box>
                 {location.name}
               </Typography>
