@@ -98,6 +98,10 @@ export default function Home() {
           alignItems: "center",
         }}
       >
+        <Typography variant="h3" sx={{ textAlign: "center", mb: 8 }}>
+          Guess whos alive😄 or dead💀
+        </Typography>
+
         <Card sx={{ minWidth: 345, height: 500 }}>
           <CardMedia sx={{ height: 300 }} image={image} title="name" />
           <CardContent>
@@ -149,7 +153,7 @@ export default function Home() {
             color="primary"
             onClick={() => handleGuess("Dead")}
           >
-            ☠️Dead
+            💀Dead
           </Button>
         </Box>
       </Container>
