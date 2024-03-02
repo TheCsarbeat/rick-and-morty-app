@@ -9,8 +9,9 @@ import {
   Typography,
   Button,
   TextField,
-  FormControl,
+  IconButton,
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
 export default function Content({ data, defaultEndpoint }) {
   const { info, results: defaultResults = [] } = data;
@@ -34,6 +35,7 @@ export default function Content({ data, defaultEndpoint }) {
 
     async function request() {
       const res = await fetch(current);
+      console.log(res);
       //validate response
       if (!res.ok) {
         // No more characters
@@ -67,6 +69,8 @@ export default function Content({ data, defaultEndpoint }) {
   }, [current]);
 
   function handleLoadMore() {
+    // If there is no next page, don't do anything
+    if (!page?.next) return;
     updatePage((prev) => {
       return {
         ...prev,
@@ -75,39 +79,101 @@ export default function Content({ data, defaultEndpoint }) {
     });
   }
 
-  function handleOnSubmitSearch(e) {
-    e.preventDefault();
-
+  async function handleOnSubmitSearch() {
     const value = query || "";
     const endpoint = `https://rickandmortyapi.com/api/character/?name=${value}`;
 
-    updatePage({
-      current: endpoint,
-    });
+    try {
+      const res = await fetch(endpoint);
+      if (!res.ok) {
+        const errorData = await res.json();
+        if (errorData.error === "There is nothing here") {
+          return;
+        } else {
+          throw new Error(errorData.error);
+        }
+      }
+
+      const searchData = await res.json();
+      updatePage({
+        current: endpoint,
+        ...searchData.info,
+      });
+
+      updateResults(searchData.results);
+    } catch (error) {
+      console.error("Error fetching data:", error.message);
+    }
   }
+
+  const handleKeypress = (e) => {
+    console.log(e.keyCode);
+    //it triggers by pressing the enter key
+    if (e.keyCode === 13) {
+      handleOnSubmitSearch();
+    }
+  };
+
+  // reload page
+  const handleReload = () => {
+    window.location.reload();
+  };
 
   return (
     <Container maxWidth="lg" sx={{ height: "100vh" }}>
-      <Typography variant="h1" sx={{ textAlign: "center" }}>
-        MortyDex
-      </Typography>
-      <FormControl>
-        <TextField
-          id="outlined-search"
-          label="Search"
-          type="search"
-          sx={{ color: "primary.main" }}
-          value={query}
-          onChange={handleOnChange}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleOnSubmitSearch}
-        >
-          Search
-        </Button>
-      </FormControl>
+      <Link href={"/"} onClick={handleReload}>
+        <Typography variant="h1" sx={{ textAlign: "center" }}>
+          MortyDex
+        </Typography>
+      </Link>
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Link href={"/game"}>
+          <Button variant="contained" color="primary" sx={{ mt: 4, ml: 4 }}>
+            Play Game
+          </Button>
+        </Link>
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          my: 4,
+        }}
+      >
+        <Box sx={{ bgcolor: "background.paper" }}>
+          <TextField
+            id="outlined-search"
+            label="Search"
+            type="search"
+            placeholder="Search by name"
+            InputLabelProps={{
+              sx: {
+                color: "white",
+                opacity: 0.5,
+              },
+            }}
+            sx={{
+              input: {
+                "&::placeholder": {
+                  color: "white",
+                  opacity: 1,
+                },
+              },
+            }}
+            value={query}
+            onChange={handleOnChange}
+            onKeyDown={handleKeypress}
+          />
+          <IconButton
+            variant="contained"
+            color="primary"
+            onClick={handleOnSubmitSearch}
+            sx={{ height: "100%", px: 2 }}
+          >
+            <SearchIcon />
+          </IconButton>
+        </Box>
+      </Box>
       <Grid
         container
         rowSpacing={4}
@@ -117,7 +183,7 @@ export default function Content({ data, defaultEndpoint }) {
         {results.map((character) => (
           <Grid item key={character.id} xs={12} sm={6} md={4} lg={3}>
             <Paper item key={character.id} xs={12} sm={6} md={4} lg={3}>
-              <Box>
+              <Box sx={{ ":hover": { color: "primary.main" } }}>
                 <Typography variant="h6" sx={{ textAlign: "center" }}>
                   {character.name}
                 </Typography>
@@ -128,6 +194,27 @@ export default function Content({ data, defaultEndpoint }) {
                     width="100%"
                   />
                 </Link>
+                <Box>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      color:
+                        character.status === "Alive"
+                          ? "primary.main"
+                          : character.status === "Dead"
+                          ? "error.main"
+                          : "text.primary",
+                      textAlign: "center",
+                    }}
+                  >
+                    {character.status === "Alive"
+                      ? "😄"
+                      : character.status === "Dead"
+                      ? "💀"
+                      : "❓"}
+                    {character.status}
+                  </Typography>
+                </Box>
               </Box>
             </Paper>
           </Grid>

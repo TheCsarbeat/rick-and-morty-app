@@ -1,4 +1,3 @@
-import Button from "@mui/material/Button";
 import Content from "./content";
 
 const defaultEndpoint = `https://rickandmortyapi.com/api/character/`;

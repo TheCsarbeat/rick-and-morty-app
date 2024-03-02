@@ -127,3 +127,8 @@ a {
       transform: scale(1.5);
   }
 }
+
+#outlined-search::placeholder {
+  color: #ffffff;
+  opacity: 0.5;
+}
